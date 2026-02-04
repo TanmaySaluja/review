@@ -61,13 +61,16 @@ class PageText(BaseModel):
 @app.post("/receive")
 def receive_text(data: PageText):
     print("Received text length:", len(data.text))
-    print(data.text)
+    #print(data.text)
     word=data.text.split()
     for i in range(len(word)):
-        print(word[i])
+        #print(word[i], end=' ')
+        if word[i]=='Top' and word[i+1]=='reviews' and word[i+2]=='from' and word[i+3]=='India':
+            rating=word[i+6]
+            print(f'rating {rating}')
 
-
-
+            s=word[i+22]
+            print(f'f word{s}')
 
 
 
