@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+'''from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import joblib
@@ -40,4 +40,37 @@ def predict(data: PredictRequest):
         'text': data.text
     }
 
-        
+        '''
+
+from fastapi import FastAPI
+from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class PageText(BaseModel):
+    text: str
+
+@app.post("/receive")
+def receive_text(data: PageText):
+    print("Received text length:", len(data.text))
+    print(data.text)
+    word=data.text.split()
+    for i in range(len(word)):
+        print(word[i])
+
+
+
+
+
+
+    return {
+        "length": len(data.text)
+    }
