@@ -4,6 +4,40 @@ from fastapi.middleware.cors import CORSMiddleware
 import joblib
 import pandas as pd
 from scipy.sparse import hstack
+from pydantic import BaseModel
+from fastapi.responses import PlainTextResponse
+import requests
 
-app=FastAPI('Hello')
+app=FastAPI()
 
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+
+model=joblib.load('model.joblib')
+vectorizer=joblib.load('vectorizer.joblib')
+scaler=joblib.load('scaler.joblib')
+
+class PredictRequest(BaseModel):
+    text: str
+
+
+@app.post('/predict')
+def predict(data: PredictRequest):
+    #text_vec=vectorizer.transform([data.text])
+    #rating_df = pd.DataFrame({"rating": [data.rating]})
+    #rating_vec = scaler.transform(rating_df)
+    #X = hstack([text_vec, rating_vec])
+    #ai_prob = model.predict_proba(X)[0][1]
+    return{
+        'text': data.text
+    }
+
+        
