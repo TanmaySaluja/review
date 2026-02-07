@@ -1,11 +1,56 @@
-import requests
-from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
 
-s=requests.get('https://www.amazon.in/TRIUMPH-Speed-Phantom-Booking-Ex-Showroom/dp/B0F53FKZ12/?_encoding=UTF8&pd_rd_w=r8353&content-id=amzn1.sym.4ba71204-24f1-4af6-bcb4-a2ca17f99630&pf_rd_p=4ba71204-24f1-4af6-bcb4-a2ca17f99630&pf_rd_r=TFE42WVTZA8H9H8Z3BMN&pd_rd_wg=whPnN&pd_rd_r=55b8cb61-c0ce-4007-b033-8203519ee7d8&ref_=pd_hp_d_btf_ls_gwc_pc_en4_')
-html=s.text
+URL = "https://www.amazon.in/product-reviews/B07MZG27XK"
 
-soup=BeautifulSoup(html, 'html.parser')
-for script in soup(["script", "style"]):
-    script.extract()
-text = soup.get_text(separator=' ')
-print(text)
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+driver.get(URL)
+
+# wait until reviews load
+wait = WebDriverWait(driver, 15)
+wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "div[data-hook='review']")))
+
+reviews_data = []
+
+reviews = driver.find_elements(By.CSS_SELECTOR, "div[data-hook='review']")
+
+print(f"Reviews found: {len(reviews)}")  # DEBUG LINE
+
+for review in reviews:
+    try:
+        rating = review.find_element(By.CSS_SELECTOR, "i[data-hook='review-star-rating']").text
+    except:
+        rating = None
+
+    try:
+        title = review.find_element(By.CSS_SELECTOR, "a[data-hook='review-title']").text
+    except:
+        title = None
+
+    try:
+        body = review.find_element(By.CSS_SELECTOR, "span[data-hook='review-body']").text
+    except:
+        body = None
+
+    try:
+        date = review.find_element(By.CSS_SELECTOR, "span[data-hook='review-date']").text
+    except:
+        date = None
+
+    reviews_data.append({
+        "rating": rating,
+        "title": title,
+        "body": body,
+        "date": date
+    })
+
+driver.quit()
+
+for i, r in enumerate(reviews_data, 1):
+    print(f"\nReview {i}")
+    for k, v in r.items():
+        print(f"{k}: {v}")
